@@ -10,6 +10,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
+//import java.util.Collection;
 
 /**
  * Created by troy on 3/17/17.
@@ -25,9 +27,21 @@ public class DirectoryAdapter extends BaseAdapter {
         dirs = getDirectories(path);
     }
 
-    public void selectDirectory(String dir) {
-        currentPath += dir;
+    public void selectDirectory(String dir, TextView displayDir) {
+        updatePath(currentPath+dir, displayDir);
+    }
+
+    public boolean upDirectory(TextView displayDir) {
+        if (currentPath.equals("/"))
+            return false;
+        updatePath(getParentDirectoryPath(currentPath), displayDir);
+        return true;
+    }
+
+    public void updatePath(String path, TextView displayDir) {
+        currentPath = path;
         dirs = getDirectories(currentPath);
+        updateDisplayedDirectory(displayDir);
         notifyDataSetChanged();
     }
 
@@ -73,6 +87,22 @@ public class DirectoryAdapter extends BaseAdapter {
 
 
 
+    private void updateDisplayedDirectory(TextView directoryDisplay) {
+        directoryDisplay.setText(getCurrentDirectoryName(currentPath));
+    }
+
+    private String getCurrentDirectoryName(String path) {
+        String s = currentPath.substring(0, currentPath.length()-1);
+        s = s.substring(s.lastIndexOf("/")+1);
+        if (s.length() == 0) s = "/";
+        return s;
+    }
+
+    private String getParentDirectoryPath(String path) {
+        String s = path.substring(0, path.length()-1);
+        s = s.substring(0, s.lastIndexOf("/")+1);
+        return s;
+    }
 
     private ArrayList<String> getDirectories(String path) {
         ArrayList<String> ret = new ArrayList<String>();
@@ -88,11 +118,17 @@ public class DirectoryAdapter extends BaseAdapter {
                 if (inFile.isDirectory()) {
                     // is directory
                     String s = inFile.toString();
-                    s = s.substring(path.length()) + "/";
+                    s = s.substring(path.length());
                     ret.add(s);
                 }
             }
 
+            // alphabetize
+            java.util.Collections.sort(ret, java.text.Collator.getInstance());
+
+            // append "/" to all directories. Must be done afterwards for alphabetizing purposes
+            for (ListIterator s = ret.listIterator(); s.hasNext(); )
+                s.set(s.next() + "/");
         }
 
         return ret;
