@@ -39,7 +39,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:text="Current Directory"
-            android:textSize="28dp"
+            android:textSize="28sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/buttonUp"
             app:layout_constraintTop_toTopOf="parent" />
@@ -58,7 +58,6 @@
             android:id="@+id/fileList"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="0dp"
             android:divider="@color/colorFontPrimary"
             android:dividerHeight="1dp"
             app:layout_constraintBottom_toBottomOf="parent"

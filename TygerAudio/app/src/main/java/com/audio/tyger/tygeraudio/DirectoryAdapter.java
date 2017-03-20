@@ -1,5 +1,6 @@
 package com.audio.tyger.tygeraudio;
 
+import android.graphics.Path;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -11,7 +12,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.ListIterator;
 //import java.util.Collection;
 
@@ -21,14 +22,19 @@ import java.util.ListIterator;
 
 public class DirectoryAdapter extends BaseAdapter {
 
+    final private ArrayList<String> musicExtensions = new ArrayList<>();
+
     private String currentPath;
     private ArrayList<String> dirs;
     private ArrayList<String> files;
 
     public DirectoryAdapter(String path) {
+        musicExtensions.addAll(Arrays.asList(
+                "mp3", "flac"));
+
         currentPath = path;
-        dirs = getDirectories(path);
-        files = getFiles(path);
+        dirs = PathParser.getDirectories(path);
+        files = PathParser.getFilesOfType(path, musicExtensions);
     }
 
     @Override
@@ -96,14 +102,15 @@ public class DirectoryAdapter extends BaseAdapter {
     public boolean upDirectory(TextView displayDir) {
         if (currentPath.equals("/"))
             return false;
-        updatePath(getParentDirectoryPath(currentPath), displayDir);
+        updatePath(PathParser.getParentDirectoryPath(currentPath), displayDir);
         return true;
     }
 
     public void updatePath(String path, TextView displayDir) {
         currentPath = path;
-        dirs = getDirectories(currentPath);
-        files = getFiles(currentPath);
+        dirs = PathParser.getDirectories(currentPath);
+        files = PathParser.getFilesOfType(path, musicExtensions);
+
         updateDisplayedDirectory(displayDir);
         notifyDataSetChanged();
     }
@@ -116,74 +123,7 @@ public class DirectoryAdapter extends BaseAdapter {
 
 
     private void updateDisplayedDirectory(TextView directoryDisplay) {
-        directoryDisplay.setText(getCurrentDirectoryName(currentPath));
+        directoryDisplay.setText(PathParser.getCurrentDirectoryName(currentPath));
     }
 
-    private String getCurrentDirectoryName(String path) {
-        String s = currentPath.substring(0, currentPath.length()-1);
-        s = s.substring(s.lastIndexOf("/")+1);
-        if (s.length() == 0) s = "/";
-        return s;
-    }
-
-    private String getParentDirectoryPath(String path) {
-        String s = path.substring(0, path.length()-1);
-        s = s.substring(0, s.lastIndexOf("/")+1);
-        return s;
-    }
-
-    private ArrayList<String> getDirectories(String path) {
-        ArrayList<String> ret = new ArrayList<String>();
-
-        // get file list
-        File f = new File(path);
-        File[] files = f.listFiles();
-
-        if (files != null) {
-
-            // get all directories
-            for (File inFile : files) {
-                if (inFile.isDirectory()) {
-                    String s = inFile.toString();
-                    s = s.substring(path.length());
-                    ret.add(s);
-                }
-            }
-
-            // alphabetize
-            java.util.Collections.sort(ret, java.text.Collator.getInstance());
-
-            // append "/" to all directories. Must be done afterwards for alphabetizing purposes
-            for (ListIterator s = ret.listIterator(); s.hasNext(); )
-                s.set(s.next() + "/");
-        }
-
-        return ret;
-    }
-
-    private ArrayList<String> getFiles(String path) {
-        ArrayList<String> ret = new ArrayList<String>();
-
-        // get file list
-        File f = new File(path);
-        File[] files = f.listFiles();
-
-        if (files != null) {
-
-            // get all files
-            for (File inFile : files) {
-                if (inFile.isFile()) {
-                    String s = inFile.toString();
-                    s = s.substring(path.length());
-                    ret.add(s);
-                }
-            }
-
-            // alphabetize
-            java.util.Collections.sort(ret, java.text.Collator.getInstance());
-
-        }
-
-        return ret;
-    }
 }
