@@ -1,19 +1,15 @@
 package com.audio.tyger.tygeraudio;
 
-import android.graphics.Path;
-import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ListIterator;
+import java.util.LinkedList;
 //import java.util.Collection;
 
 /**
@@ -24,17 +20,15 @@ public class DirectoryAdapter extends BaseAdapter {
 
     final private ArrayList<String> musicExtensions = new ArrayList<>();
 
-    private String currentPath;
-    private ArrayList<String> dirs;
+    private String currentDirPath; // terminated with forward slash
+    private ArrayList<String> dirs; // terminated with forward slash
     private ArrayList<String> files;
 
     public DirectoryAdapter(String path) {
         musicExtensions.addAll(Arrays.asList(
-                "mp3", "flac"));
+                "mp3", "flac", "wav", "ogg"));
 
-        currentPath = path;
-        dirs = PathParser.getDirectories(path);
-        files = PathParser.getFilesOfType(path, musicExtensions);
+        setCurrentDirectory(path);
     }
 
     @Override
@@ -94,36 +88,58 @@ public class DirectoryAdapter extends BaseAdapter {
 
 
 
-
-    public void selectDirectory(String dir, TextView displayDir) {
-        updatePath(currentPath+dir, displayDir);
-    }
-
-    public boolean upDirectory(TextView displayDir) {
-        if (currentPath.equals("/"))
-            return false;
-        updatePath(PathParser.getParentDirectoryPath(currentPath), displayDir);
-        return true;
-    }
-
-    public void updatePath(String path, TextView displayDir) {
-        currentPath = path;
-        dirs = PathParser.getDirectories(currentPath);
-        files = PathParser.getFilesOfType(path, musicExtensions);
-
-        updateDisplayedDirectory(displayDir);
-        notifyDataSetChanged();
-    }
-
     public boolean isDirectory(int position) {
         return (position < dirs.size());
     }
 
-
-
-
-    private void updateDisplayedDirectory(TextView directoryDisplay) {
-        directoryDisplay.setText(PathParser.getCurrentDirectoryName(currentPath));
+    public String getCurrentDirectory() {
+        return currentDirPath;
     }
 
+    public String getPath(int position) {
+        return currentDirPath + getItem(position);
+    }
+
+    private void setCurrentDirectory(String path) {
+        // append a "/" if none present
+        if (path.lastIndexOf("/") != path.length() - 1)
+            path += "/";
+
+        currentDirPath = path;
+        dirs = PathParser.getDirectories(path);
+        files = PathParser.getFilesOfType(path, musicExtensions);
+    }
+
+    public void selectChildDirectory(String dir) {
+        setCurrentDirectory(currentDirPath + dir);
+    }
+
+    public boolean upDirectory() {
+        if (currentDirPath.equals("/"))
+            return false;
+
+        setCurrentDirectory(PathParser.getParentDirectoryPath(currentDirPath));
+
+        return true;
+    }
+
+    public void updateDisplay() {
+        notifyDataSetChanged();
+    }
+
+    public LinkedList<String> getFilesBefore(int position) {
+        LinkedList<String> ret = new LinkedList<>();
+        for (int i = dirs.size(); i < position; i++) {
+            ret.addLast(getPath(i));
+        }
+        return ret;
+    }
+
+    public LinkedList<String> getFilesAfter(int position) {
+        LinkedList<String> ret = new LinkedList<>();
+        for (int i = position+1; i < dirs.size() + files.size(); i++) {
+            ret.addLast(getPath(i));
+        }
+        return ret;
+    }
 }

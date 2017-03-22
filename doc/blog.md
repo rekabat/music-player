@@ -87,6 +87,17 @@ Only show music files. No need to show all files. Have a list of extensions, if 
 
 Refactor directory adapter. Pull out all path parsing and and file finding into a new static class.
 
+Time to play music! Learn about services. Learn about MediaPlayer.
+
+# Day 6 - 2017/3/21
+Music is playing. Upon clicking a track in the browser, that song begins playing. I don't fully understand launching and terminating of the service. I get an error upon terminating the app, but ultimately the music must keep playing in the background. I don't want to fix this yet, because it's the only way I can stop the music since pausing isn't implemented!
+
+Get rew/ff working. Simple use of MediaPlayer's seekTime method.
+
+Get next/prev track work. To get things rolling, I just sent the selected track to the audio service. It's time to improve this. Now when a track is selected a stack of all the files before, the selected file, and a queue of all the files after, are sent to the service.
+
+Get pause/play working. This is tricky. Everything is very state-ful. The other controls get all messed up based on whether or not music is currently paused or playing. I will continue exploring this later.
+
 
 # Things to look into
 fastScrollEnabled?
@@ -94,3 +105,19 @@ fastScrollEnabled?
 File names too long? In list, or on title bar
 
 Display name of file above scrubber?
+
+Going back when starting from not root causes problems since there's nothing on the stack.
+
+File.separator instead of "/"
+
+
+
+# User Stories
+## Tony, the on-the-go guy
+Tony is on the go, and he loves to listen to music. When moving around, it's hard to take out his phone, unlock it, open the app, and press the controls. Instead, when he needs to hear what's going on around him, he simply presses the button on his headset to pause the music; then he pops off the headset, listens, puts it back in, and presses the button again to get back to the music. Or, if a song comes up that he wasn't really "feeling", he pulls out his phone, presses the wake button, and uses the lockscreen controls to do the 6 basic actions (prev/next, rew/ff, pause/play).
+
+## Tina, the roadtrip DJ
+Tina has been given the reins for the roadtrip music selection. She opens up Tyger Audio and starts browsing the "Favorite" directory for some music. She wants to treat the people in the car to a selection of some of her favorites, as they strike her. She's a pro, she's not just going to play one album straight through. So she finds a song she likes, long presses it, and it gets added to the "DJ Playlist". She then navigates to the playlist and selects the newly added song. Then she gets back to browsing, adding more songs with long presses. These automatically play in order. At the end, maybe she really liked the playlist, so she goes back to it and saves it as an m3u; or maybe she had fun but doesn't need it anymore, so she clears the list.
+
+## Trevor, the longform lover
+Trevor really only listens to podcasts, audiobooks, stand-up comedy, and the like. All he cares about is being able to resume playback from where he left off. And change the amount the rew/ff buttons move him (he needs a bit more than the default 10 seconds!) Luckily, the "remember place" feature and the rew/ff settings are modifiable from the settings menu.

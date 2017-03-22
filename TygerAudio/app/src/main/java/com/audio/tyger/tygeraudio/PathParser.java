@@ -12,8 +12,13 @@ import java.util.ListIterator;
 
 public class PathParser {
 
-    static public String getCurrentDirectoryName(String path) {
-        String s = path.substring(0, path.length()-1);
+    static public String getDirectoryName(String path) {
+        String s = path;
+
+        // remove terminating "/" if present
+        if (s.lastIndexOf("/") == s.length()-1)
+            s = path.substring(0, path.length()-1);
+
         s = s.substring(s.lastIndexOf("/")+1);
         if (s.length() == 0) s = "/";
         return s;
@@ -23,6 +28,14 @@ public class PathParser {
         String s = path.substring(0, path.length()-1);
         s = s.substring(0, s.lastIndexOf("/")+1);
         return s;
+    }
+
+    static private String getFileExtension(String name) {
+        try {
+            return name.substring(name.lastIndexOf(".") + 1);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     static public ArrayList<String> getDirectories(String path) {
@@ -93,7 +106,6 @@ public class PathParser {
                     if (isFileOfType(s, extensions)) {
                         s = s.substring(path.length());
                         ret.add(s);
-
                     }
                 }
             }
@@ -110,21 +122,14 @@ public class PathParser {
 
     static private boolean isFileOfType(String path, ArrayList<String> extensions) {
         String extension = getFileExtension(path);
-        Log.d("Extension", extension);
+//        Log.d("Extension", extension);
         extension = extension.toLowerCase();
         for(String str: extensions) {
-            Log.d("Valid ext", str);
+//            Log.d("Valid ext", str);
             if(str.trim().contains(extension))
                 return true;
         }
         return false;
     }
 
-    static private String getFileExtension(String name) {
-        try {
-            return name.substring(name.lastIndexOf(".") + 1);
-        } catch (Exception e) {
-            return "";
-        }
-    }
 }
